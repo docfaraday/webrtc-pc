@@ -2162,7 +2162,7 @@
                                       transport =] according to [[RFC8843]],
                                       let <var>transport</var> be the
                                       {{RTCDtlsTransport}} object representing
-                                      the RTP/RTCP component of that transport.
+                                      the RTP component of that transport.
                                     </p>
                                   </li>
                                   <li data-tests=
@@ -2587,7 +2587,7 @@
                                     <p>
                                       Let <var>transport</var> be the
                                       {{RTCDtlsTransport}} object representing
-                                      the RTP/RTCP component of the [= media
+                                      the RTP component of the [= media
                                       transport =] used by
                                       <var>transceiver</var>'s [= associated =]
                                       [= media description =], according to
@@ -6600,6 +6600,56 @@ interface RTCIceCandidate {
               The browser MAY support other grammar extensions for [=
               candidate-attribute =] as defined in other RFCs.
             </p>
+          </section>
+          <section id="rtcicecomponent">
+            <h4>
+              <dfn>RTCIceComponent</dfn> Enum
+            </h4>
+            <p>
+              The {{RTCIceComponent}} represents the component of the ICE
+              candidate.
+            </p>
+            <div>
+              <pre class="idl">enum RTCIceComponent {
+    "rtp",
+    "rtcp"
+};</pre>
+              <table data-link-for="RTCIceComponent" data-dfn-for=
+                     "RTCIceComponent" class="simple">
+                <caption>{{RTCIceComponent}} Enumeration description</caption>
+                <thead>
+                  <tr>
+                    <th>Enum value</th><th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <dfn data-idl="">rtp</dfn>
+                    </td>
+                    <td>
+                      The ICE Transport is used for RTP (or RTCP multiplexing),
+                      as defined in [[RFC5245]], Section 4.1.1.1. Protocols
+                      multiplexed with RTP (e.g. data channel) share its
+                      component ID. This represents the <code class=
+                      "ice">component-id</code> value <code>1</code> when encoded
+                      in [= candidate-attribute =].
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <dfn data-idl="">rtcp</dfn>
+                    </td>
+                    <td>
+                      The ICE Transport is used for RTCP as defined by [[RFC5245]],
+                      Section 4.1.1.1. This represents the <code class=
+                      "ice">component-id</code> value <code>2</code> when encoded
+                      in [= candidate-attribute =].
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </section>
           <section>
             <h4>
@@ -11948,9 +11998,9 @@ async function onOffHold() {
           {{RTCPeerConnection/setLocalDescription()}} and
           {{RTCPeerConnection/setRemoteDescription()}}. Each
           {{RTCDtlsTransport}} object represents the DTLS transport layer for
-          the RTP or RTCP {{RTCIceTransport/component}} of a specific
-          {{RTCRtpTransceiver}}, or a group of {{RTCRtpTransceiver}}s if such a
-          group has been negotiated via [[RFC8843]].
+          the RTP component of a specific {{RTCRtpTransceiver}}, or a group of
+          {{RTCRtpTransceiver}}s if such a group has been negotiated via
+          [[RFC8843]].
         </p>
         <div class="note">
           A new DTLS association for an existing {{RTCRtpTransceiver}} will be
@@ -12250,9 +12300,9 @@ interface RTCDtlsTransport : EventTarget {
           {{RTCIceTransport}} changes when the [= ICE Agent =] provides
           indications to the user agent as described below. Each
           {{RTCIceTransport}} object represents the ICE transport layer for the
-          RTP or RTCP {{RTCIceTransport/component}} of a specific
-          {{RTCRtpTransceiver}}, or a group of {{RTCRtpTransceiver}}s if such a
-          group has been negotiated via [[RFC8843]].
+          RTP component of a specific {{RTCRtpTransceiver}}, or a group of
+          {{RTCRtpTransceiver}}s if such a group has been negotiated via
+          [[RFC8843]].
         </p>
         <div class="note">
           An ICE restart for an existing {{RTCRtpTransceiver}} will be
@@ -12755,7 +12805,6 @@ interface RTCDtlsTransport : EventTarget {
           <pre class="idl" data-tests="idlharness.https.window.js">[Exposed=Window]
 interface RTCIceTransport : EventTarget {
   readonly attribute RTCIceRole role;
-  readonly attribute RTCIceComponent component;
   readonly attribute RTCIceTransportState state;
   readonly attribute RTCIceGathererState gatheringState;
   sequence&lt;RTCIceCandidate&gt; getLocalCandidates();
@@ -12781,22 +12830,6 @@ interface RTCIceTransport : EventTarget {
                 <p>
                   The {{role}} attribute MUST, on getting, return the value of
                   the [[\IceRole]] internal slot.
-                </p>
-              </dd>
-              <dt>
-                <dfn id="dom-icetransport-component">component</dfn> of type
-                <span class="idlAttrType">{{RTCIceComponent}}</span>, readonly
-              </dt>
-              <dd>
-                <p class="issue atrisk">
-                  The {{RTCIceTransport/component}} feature is at risk due to
-                  lack of implementer interest.
-                </p>
-                <p>
-                  The {{component}} attribute MUST return the ICE component of
-                  the transport. When RTCP mux is used, a single
-                  {{RTCIceTransport}} transports both RTP and RTCP and
-                  {{component}} is set to {{RTCIceComponent/"rtp"}}.
                 </p>
               </dd>
               <dt>
@@ -13328,52 +13361,6 @@ interface RTCIceCandidatePair {
                   </td>
                   <td>
                     A controlled agent as defined by [[RFC5245]], Section 3.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <section id="rtcicecomponent">
-          <h3>
-            <dfn>RTCIceComponent</dfn> Enum
-          </h3>
-          <div>
-            <pre class="idl">enum RTCIceComponent {
-  "rtp",
-  "rtcp"
-};</pre>
-            <table data-link-for="RTCIceComponent" data-dfn-for=
-		   "RTCIceComponent" class="simple">
-	      <caption>{{RTCIceComponent}} Enumeration description</caption>
-              <thead>
-                <tr>
-                  <th>Enum value</th><th>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <dfn data-idl="">rtp</dfn>
-                  </td>
-                  <td>
-                    The ICE Transport is used for RTP (or RTCP multiplexing),
-                    as defined in [[RFC5245]], Section 4.1.1.1. Protocols
-                    multiplexed with RTP (e.g. data channel) share its
-                    component ID. This represents the <code class=
-                    "ice">component-id</code> value <code>1</code> when encoded
-                    in [= candidate-attribute =].
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <dfn data-idl="">rtcp</dfn>
-                  </td>
-                  <td>
-                    The ICE Transport is used for RTCP as defined by [[RFC5245]],
-                    Section 4.1.1.1. This represents the <code class=
-                    "ice">component-id</code> value <code>2</code> when encoded
-                    in [= candidate-attribute =].
                   </td>
                 </tr>
               </tbody>
